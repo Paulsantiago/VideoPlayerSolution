@@ -184,35 +184,19 @@ namespace VideoPlayer
                // var bm = grayImage.ToBitmap();
                //byte* ptr = (byte*)grayImg.MIplImage.ImageData;
 
-                //byte[,] Graymatrix = new byte[grayImage.Height, grayImage.Width];
-                byte[,] Graymatrix = new byte[CurrentImg.Width, CurrentImg.Height];
+                byte[,] Graymatrix = new byte[CurrentImg.Height, CurrentImg.Width];
+                //byte[,] Graymatrix = new byte[CurrentImg.Width, CurrentImg.Height];
                 //byte[] Graymatrix = new byte[grayImage.Height * grayImage.Width];
                 for (int v = 0; v < CurrentImg.Height; v++)
                  {
                      for (int u = 0; u < CurrentImg.Width; u++)
                      {
                          byte a = CurrentImg.Data[v, u, 0]; //Get Pixel Color | fast way
-                         //Graymatrix[v, u] = a;
-                        Graymatrix[u, v] = a;
-                        //Graymatrix[v * grayImage.Width + u] = a;
+                         Graymatrix[v, u] = a;
+                        //Graymatrix[u, v] = a;
                     }
                  }
 
-                // iImage.iPointerToiImage(GrayImg, grayImage.Ptr, grayImage.Height, grayImage.Width);
-                //IntPtr imgOut = Marshal.AllocHGlobal(Graymatrix.Length);
-                //Marshal.Copy(Graymatrix, 0, imgOut, Graymatrix.Length);
-                /* try
-                 {
-                     E_iVision_ERRORS err2 = iImage.iImageResize(GrayImg, grayImage.Width, grayImage.Height);
-                     iImage.iPointerToiImage(GrayImg, grayImage.Ptr, grayImage.Width, grayImage.Height);
-                 }
-                 catch (Exception e)
-                 {
-                     MessageBox.Show(e.ToString());
-                     throw;
-                 }*/
-
-                //var error =  iImage.iImageCopy(grayImage, imgOut);
                 E_iVision_ERRORS err2 = iImage.iImageResize(GrayImg, CurrentImg.Width, CurrentImg.Height);
                 unsafe
                  {
@@ -224,24 +208,15 @@ namespace VideoPlayer
                              MessageBox.Show(err.ToString(), "ERROR");
                           //   return IntPtr.Zero;
                          }
-                        //m_Drawimg = System.Drawing.Image.FromHbitmap(iImage.iGetBitmapAddress(GrayImg));
-                        //hbitmap = iImage.iGetBitmapAddress(GrayImg);
-                        //RefreshPictureImage(m_Drawimg);
-                        RefreshPicturePtr(iImage.iGetBitmapAddress(GrayImg));
-                        //pictureBox1.Image = System.Drawing.Image.FromHbitmap(hbitmap);
-                        // pictureBox1.Refresh();
                     }
                  }
-                await Task.Delay(1000 / Convert.ToInt16(30));
-                label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
 
-
-                /*
+                
                 if (m_bRTMatch)
                 {
-                    m_Drawbmp = new Bitmap(grayImage.Width, grayImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    m_Drawbmp = new Bitmap(CurrentImg.Width, CurrentImg.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     m_Drawg = Graphics.FromImage(m_Drawbmp);
-                    m_Drawg.DrawImage(m_Drawimg, 0, 0, grayImage.Width, grayImage.Height);
+                    m_Drawg.DrawImage(m_Drawimg, 0, 0, CurrentImg.Width, CurrentImg.Height);
 
                     E_iVision_ERRORS err;
                     int objnum = 0;
@@ -280,8 +255,14 @@ namespace VideoPlayer
 
                   
                 }
+                else
+                {
+                    RefreshPicturePtr(iImage.iGetBitmapAddress(GrayImg));
+                    await Task.Delay(1000 / Convert.ToInt16(30));
+                    label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
+                }
 
-                */
+                
 
                 //DrawScale = (double)Convert.ToDouble(txb.Text);
                 ///DrawScaledImage(bm, (float)DrawScale, out Bitmap l_Bitmap);

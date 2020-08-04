@@ -44,7 +44,7 @@ namespace VideoPlayer
         public IntPtr Matchmodel = iMatch.CreateNCCMatch();
         public IntPtr TrainROITool = iROI.CreateiROIManager();
         public IntPtr MatchingROITool = iROI.CreateiROIManager();
-
+        public IntPtr Snap_GrayImg = iImage.CreateGrayiImage();
         public bool UsingColor = false;
         public IntPtr hDC;
         public bool m_bRefresh = false;
@@ -75,6 +75,8 @@ namespace VideoPlayer
         Image<Gray, byte> CurrentImg;
         private Mat _frame;
         private Mat _grayFrame;
+        internal Graphics m_g;
+
         public Form1()
         {
 
@@ -104,6 +106,8 @@ namespace VideoPlayer
                 Fps = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps);
                 capture.SetCaptureProperty(CapProp.Fps, 30);
                 Fps = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps);
+                iImage.iImageResize(Snap_GrayImg, m.Width, m.Height);
+
             }
         }
 
@@ -146,6 +150,7 @@ namespace VideoPlayer
             }
             IsReadingFrame = true;
             ReadAllFrames();
+            m_bPause = false;
             //capture.Start();
 
 
@@ -162,6 +167,7 @@ namespace VideoPlayer
         {
             capture.Pause();
             IsReadingFrame = false;
+            m_bPause = true;
         }
 
 
@@ -210,8 +216,8 @@ namespace VideoPlayer
                          }
                     }
                  }
+                m_Drawimg = System.Drawing.Image.FromHbitmap(iImage.iGetBitmapAddress(GrayImg));
 
-                
                 if (m_bRTMatch)
                 {
                     m_Drawbmp = new Bitmap(CurrentImg.Width, CurrentImg.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -253,7 +259,10 @@ namespace VideoPlayer
                     }
 
 
-                  
+                    iMatch.iDrawiMatchResults(Matchmodel, m_Drawg.GetHdc(), 1);
+                    RefreshPictureImage(m_Drawbmp);
+                    m_Drawg.Dispose();
+
                 }
                 else
                 {
@@ -262,7 +271,8 @@ namespace VideoPlayer
                     label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
                 }
 
-                
+                await Task.Delay(1000 / Convert.ToInt16(30));
+                label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
 
                 //DrawScale = (double)Convert.ToDouble(txb.Text);
                 ///DrawScaledImage(bm, (float)DrawScale, out Bitmap l_Bitmap);

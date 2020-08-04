@@ -148,8 +148,16 @@ namespace Warp_Csharp
             //     MessageBox.Show(err.ToString(), "ERROR");
             //     return;
             // }
-
-
+            var err = iImage.iReadImage(TheMainfrm.Snap_GrayImg, path);
+            if (err == E_iVision_ERRORS.E_OK)
+            {
+                TheMainfrm.hbitmap = iImage.iGetBitmapAddress(TheMainfrm.GrayImg);
+                if (TheMainfrm.pictureBox2.Image != null) TheMainfrm.pictureBox2.Image.Dispose();
+                TheMainfrm.pictureBox2.Image = System.Drawing.Image.FromHbitmap(TheMainfrm.hbitmap);
+            }
+            TheMainfrm.pictureBox2.Refresh();
+           
+        
             iImage.iReadImage(TheMainfrm.GrayImg, path);
             Graphics g = TheMainfrm.GetGraphics();
             TheMainfrm.hDC = g.GetHdc();
@@ -543,7 +551,13 @@ namespace Warp_Csharp
 
         private void button3_Click(object sender, EventArgs e)
         {
-            iROI.iROIManagerSetDrawScale(TheMainfrm.TrainROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
+           // TheMainfrm.pictureBox2.Image = 
+
+            TheMainfrm.m_g =TheMainfrm.pictureBox1.CreateGraphics();
+            TheMainfrm.hDC = TheMainfrm.m_g.GetHdc();
+            iROI.iROIAttached(TheMainfrm.TrainROITool, TheMainfrm.Snap_GrayImg, TheMainfrm.hDC);
+
+            //iROI.iROIManagerSetDrawScale(TheMainfrm.TrainROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
             if (iROI.iROISize(TheMainfrm.TrainROITool) == 0)
             {
                 iBaseROI l_base_roi;
@@ -551,6 +565,7 @@ namespace Warp_Csharp
                 l_base_roi.OrgY = 50;
                 l_base_roi.Width = 50;
                 l_base_roi.Height = 50;
+                //TheMainfrm.pictureBox1.Refresh();
                 iROI.iROIAddBaseROI(TheMainfrm.TrainROITool, l_base_roi);
                 iROI.iROIPlot(TheMainfrm.TrainROITool, TheMainfrm.hDC);
             }

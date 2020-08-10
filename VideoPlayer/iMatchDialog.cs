@@ -8,11 +8,13 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Globalization;
-using MiM_iVision;
+
 using System.Diagnostics;
 using VideoPlayer;
 using Emgu.CV.Structure;
 using Emgu.CV;
+using MVC.Vision.MiM.MiM_iVision;
+using MVC.Vision.MiM;
 
 namespace Warp_Csharp
 {
@@ -40,7 +42,7 @@ namespace Warp_Csharp
         int MinReduceArea;
         int FindReduction;
 
-        NCCFind objfind;
+        iNCCFound objfind;
 
         bool TrainingFromROI = false;
 
@@ -148,26 +150,26 @@ namespace Warp_Csharp
             //     MessageBox.Show(err.ToString(), "ERROR");
             //     return;
             // }
-            var err = iImage.iReadImage(TheMainfrm.Snap_GrayImg, path);
+            var err = iImage.ReadImage(TheMainfrm.Snap_GrayImg, path);
             if (err == E_iVision_ERRORS.E_OK)
             {
-                TheMainfrm.hbitmap = iImage.iGetBitmapAddress(TheMainfrm.GrayImg);
+                TheMainfrm.hbitmap = iImage.GetBitmapAddress(TheMainfrm.GrayImg);
                 if (TheMainfrm.pictureBox2.Image != null) TheMainfrm.pictureBox2.Image.Dispose();
                 TheMainfrm.pictureBox2.Image = System.Drawing.Image.FromHbitmap(TheMainfrm.hbitmap);
             }
             TheMainfrm.pictureBox2.Refresh();
            
-        
-            iImage.iReadImage(TheMainfrm.GrayImg, path);
+            
+            iImage.ReadImage(TheMainfrm.GrayImg, path);
             Graphics g = TheMainfrm.GetGraphics();
             TheMainfrm.hDC = g.GetHdc();
 
-            iROI.iROIAttached(TheMainfrm.TrainROITool, TheMainfrm.GrayImg, TheMainfrm.hDC);
-            iROI.iROIAttached(TheMainfrm.MatchingROITool, TheMainfrm.GrayImg, TheMainfrm.hDC);
+            iROI.Attached(TheMainfrm.TrainROITool, TheMainfrm.GrayImg, TheMainfrm.hDC);
+            iROI.Attached(TheMainfrm.MatchingROITool, TheMainfrm.GrayImg, TheMainfrm.hDC);
 
         }
 
-        private void btn_NCCtraining_Click(object sender, EventArgs e)
+        public void btn_NCCtraining_Click(object sender, EventArgs e)
         {
             E_iVision_ERRORS err = E_iVision_ERRORS.E_NULL;
             //UpData_NCC_Parameter();
@@ -186,30 +188,19 @@ namespace Warp_Csharp
             {
                 iBaseROI l_rect = new iBaseROI();
                 double[] l_data = new double[10];
-                if (iROI.iROISize(TheMainfrm.TrainROITool) == 0)
+                if (iROI.Size(TheMainfrm.TrainROITool) == 0)
                 {
                     label2.Text = "ERROR: the size of ROI is 0.";
                     return;
                 }
+                l_rect = (iBaseROI)TheMainfrm.GetROIinfoByType(iROIType.BaseROI);
+               
 
-                iROI_Type l_type = iROI.iROIGetInfo(TheMainfrm.TrainROITool, ref l_data[0]);
-
-                if (l_type == iROI_Type.iBase)
-                {
-                    l_rect.OrgX = Convert.ToInt32(l_data[0]);
-                    l_rect.OrgY = Convert.ToInt32(l_data[1]);
-                    l_rect.Width = Convert.ToInt32(l_data[2]);
-                    l_rect.Height = Convert.ToInt32(l_data[3]);
-                    label2.Text = err.ToString();
-                }
-                else
-                    label2.Text = "ROI type Error!";
-
-                mRect rect;
-                rect.top = l_rect.OrgY;
-                rect.down = l_rect.OrgY + l_rect.Height;
-                rect.left = l_rect.OrgX;
-                rect.right = l_rect.OrgX + l_rect.Width;
+                iRect rect;
+                rect.top = l_rect.org_y;
+                rect.bottom = l_rect.org_y + l_rect.height;
+                rect.left = l_rect.org_x;
+                rect.right = l_rect.org_x + l_rect.width;
 
                 if (TheMainfrm.UsingColor)
                 {
@@ -225,8 +216,8 @@ namespace Warp_Csharp
                     { MessageBox.Show(err.ToString(), "Error"); label2.Text = "Error"; }
                     else label2.Text = "E_OK";
                 }
-                iROI.iROIDeleteROI(TheMainfrm.TrainROITool);
-                iROI.iROIPlot(TheMainfrm.TrainROITool, TheMainfrm.hDC);
+                iROI.DeleteROI(TheMainfrm.TrainROITool);
+                iROI.Plot(TheMainfrm.TrainROITool, TheMainfrm.hDC);
             }
             else
             {
@@ -301,7 +292,7 @@ namespace Warp_Csharp
             FindReduction = Convert.ToInt32(tbx_FinalReduction.Text);
         }
 
-        private void btn_NCCmatching_Click(object sender, EventArgs e)
+        public void btn_NCCmatching_Click(object sender, EventArgs e)
         {
             E_iVision_ERRORS err = E_iVision_ERRORS.E_NULL;
             UpData_NCC_Parameter();
@@ -386,11 +377,11 @@ namespace Warp_Csharp
             {
                 err = iMatch.iGetNCCMatchResults(TheMainfrm.Matchmodel, i, ref objfind);
 
-                str[0] = objfind.Score.ToString("0.00");
-                str[1] = objfind.CX.ToString("0.00");
-                str[2] = objfind.CY.ToString("0.00");
-                str[3] = objfind.Angle.ToString("0.00");
-                str[4] = objfind.Scale.ToString("0.00");
+                str[0] = objfind.score.ToString("0.00");
+                str[1] = objfind.cp.x.ToString("0.00");
+                str[2] = objfind.cp.y.ToString("0.00");
+                str[3] = objfind.angle.ToString("0.00");
+                str[4] = objfind.scale.ToString("0.00");
                 str[5] = Execute_time.ToString("0.00");
 
                 dataGridView1.Rows.Add(str[0], str[1], str[2], str[3], str[4], str[5]);
@@ -549,25 +540,25 @@ namespace Warp_Csharp
                 label2.Text = "OK";
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        public void button3_Click(object sender, EventArgs e)
         {
            // TheMainfrm.pictureBox2.Image = 
 
             TheMainfrm.m_g =TheMainfrm.pictureBox1.CreateGraphics();
             TheMainfrm.hDC = TheMainfrm.m_g.GetHdc();
-            iROI.iROIAttached(TheMainfrm.TrainROITool, TheMainfrm.Snap_GrayImg, TheMainfrm.hDC);
+            iROI.Attached(TheMainfrm.TrainROITool, TheMainfrm.Snap_GrayImg, TheMainfrm.hDC);
 
             //iROI.iROIManagerSetDrawScale(TheMainfrm.TrainROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
-            if (iROI.iROISize(TheMainfrm.TrainROITool) == 0)
+            if (iROI.Size(TheMainfrm.TrainROITool) == 0)
             {
                 iBaseROI l_base_roi;
-                l_base_roi.OrgX = 50;
-                l_base_roi.OrgY = 50;
-                l_base_roi.Width = 50;
-                l_base_roi.Height = 50;
+                l_base_roi.org_x = 50;
+                l_base_roi.org_y = 50;
+                l_base_roi.width = 50;
+                l_base_roi.height = 50;
                 //TheMainfrm.pictureBox1.Refresh();
-                iROI.iROIAddBaseROI(TheMainfrm.TrainROITool, l_base_roi);
-                iROI.iROIPlot(TheMainfrm.TrainROITool, TheMainfrm.hDC);
+                iROI.AddBaseROI(TheMainfrm.TrainROITool, l_base_roi);
+                iROI.Plot(TheMainfrm.TrainROITool, TheMainfrm.hDC);
             }
             else
                 label2.Text = "the size of ROI is > 1.";
@@ -575,26 +566,26 @@ namespace Warp_Csharp
 
         private void btn_MatchingROI_Click(object sender, EventArgs e)
         {
-            iROI.iROIManagerSetDrawScale(TheMainfrm.MatchingROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
-            if (iROI.iROISize(TheMainfrm.MatchingROITool) == 0)
+            iROI.SetDrawScale(TheMainfrm.MatchingROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
+            if (iROI.Size(TheMainfrm.MatchingROITool) == 0)
             {
                 iBaseROI l_base_roi;
-                l_base_roi.OrgX = 50;
-                l_base_roi.OrgY = 50;
-                l_base_roi.Width = 50;
-                l_base_roi.Height = 50;
-                iROI.iROIAddBaseROI(TheMainfrm.MatchingROITool, l_base_roi);
-                iROI.iROIPlot(TheMainfrm.MatchingROITool, TheMainfrm.hDC);
+                l_base_roi.org_x = 50;
+                l_base_roi.org_y = 50;
+                l_base_roi.width = 50;
+                l_base_roi.height = 50;
+                iROI.AddBaseROI(TheMainfrm.MatchingROITool, l_base_roi);
+                iROI.Plot(TheMainfrm.MatchingROITool, TheMainfrm.hDC);
             }
             else
                 label2.Text = "the size of ROI is > 1.";
-
+            
         }
 
         private void btn_DeleteMatchingROI_Click(object sender, EventArgs e)
         {
-            iROI.iROIDeleteROI(TheMainfrm.MatchingROITool);
-            iROI.iROIPlot(TheMainfrm.MatchingROITool, TheMainfrm.hDC);
+            iROI.DeleteROI(TheMainfrm.MatchingROITool);
+            iROI.Plot(TheMainfrm.MatchingROITool, TheMainfrm.hDC);
         }
 
 

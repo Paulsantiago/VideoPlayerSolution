@@ -98,11 +98,13 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(26, 101);
+            this.pictureBox1.Location = new System.Drawing.Point(31, 126);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(363, 263);
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pictureBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDoubleClick);
             this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Picbox_MouseDown);
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Picbox_MouseMove);
             // 
@@ -124,7 +126,7 @@
             this.button2.TabIndex = 8;
             this.button2.Text = "playPicture";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.addROI);
             // 
             // numericUpDown1
             // 
@@ -149,7 +151,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(708, 126);
+            this.button3.Location = new System.Drawing.Point(734, 148);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(132, 44);
             this.button3.TabIndex = 11;
@@ -180,7 +182,7 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Location = new System.Drawing.Point(428, 186);
+            this.pictureBox2.Location = new System.Drawing.Point(414, 148);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(288, 216);
             this.pictureBox2.TabIndex = 15;

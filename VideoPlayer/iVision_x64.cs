@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace MiM_iVision
+namespace MVC.Vision.MiM.MiM_iVision
 {
     // Declaring iImage class
     public class iVision

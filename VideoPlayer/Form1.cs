@@ -17,7 +17,8 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
-using MiM_iVision;
+using MVC.Vision.MiM;
+using MVC.Vision.MiM.MiM_iVision;
 
 using Warp_Csharp;
 
@@ -62,6 +63,7 @@ namespace VideoPlayer
         Bitmap m_Drawbmp = null;
         Graphics m_Drawg = null;
 
+
         Font drawfont = new Font("Arial", 12);
         Brush drawbrush = new SolidBrush(Color.Red);
 
@@ -76,7 +78,7 @@ namespace VideoPlayer
         private Mat _frame;
         private Mat _grayFrame;
         internal Graphics m_g;
-
+        Graphics g_rectangle;
         public Form1()
         {
 
@@ -106,8 +108,8 @@ namespace VideoPlayer
                 Fps = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps);
                 capture.SetCaptureProperty(CapProp.Fps, 30);
                 Fps = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps);
-                iImage.iImageResize(Snap_GrayImg, m.Width, m.Height);
-
+                iImage.Resize(Snap_GrayImg, m.Width, m.Height);
+                ncc.button3_Click(sender, e);
             }
         }
 
@@ -171,7 +173,34 @@ namespace VideoPlayer
         }
 
 
-
+        public void TransformFromImgCVToGrayImage(Image<Gray, byte> CurrentImg )
+        {
+            byte[,] Graymatrix = new byte[CurrentImg.Height, CurrentImg.Width];
+            //byte[,] Graymatrix = new byte[CurrentImg.Width, CurrentImg.Height];
+            //byte[] Graymatrix = new byte[grayImage.Height * grayImage.Width];
+            for (int v = 0; v < CurrentImg.Height; v++)
+            {
+                for (int u = 0; u < CurrentImg.Width; u++)
+                {
+                    byte a = CurrentImg.Data[v, u, 0]; //Get Pixel Color | fast way
+                    Graymatrix[v, u] = a;
+                    //Graymatrix[u, v] = a;
+                }
+            }
+            E_iVision_ERRORS err2 = iImage.Resize(GrayImg, CurrentImg.Width, CurrentImg.Height);
+            unsafe
+            {
+                fixed (byte* bufPointer = &Graymatrix[0, 0])
+                {
+                    var err = iImage.PointerToiImage(GrayImg, (IntPtr)bufPointer, CurrentImg.Width, CurrentImg.Height);
+                    if (err != E_iVision_ERRORS.E_OK)
+                    {
+                        MessageBox.Show(err.ToString(), "ERROR");
+                        //   return IntPtr.Zero;
+                    }
+                }
+            }
+        }
 
 
 
@@ -187,36 +216,14 @@ namespace VideoPlayer
                 //GrayScale(m.ToImage<Bgr, byte>(), out Image<Gray, byte> grayImage);
                // var bm = Emgu.CV.BitmapExtension.ToBitmap(m);
                 CurrentImg = _grayFrame.ToImage<Gray,byte>();
-               // var bm = grayImage.ToBitmap();
-               //byte* ptr = (byte*)grayImg.MIplImage.ImageData;
+                // var bm = grayImage.ToBitmap();
+                //byte* ptr = (byte*)grayImg.MIplImage.ImageData;
 
-                byte[,] Graymatrix = new byte[CurrentImg.Height, CurrentImg.Width];
-                //byte[,] Graymatrix = new byte[CurrentImg.Width, CurrentImg.Height];
-                //byte[] Graymatrix = new byte[grayImage.Height * grayImage.Width];
-                for (int v = 0; v < CurrentImg.Height; v++)
-                 {
-                     for (int u = 0; u < CurrentImg.Width; u++)
-                     {
-                         byte a = CurrentImg.Data[v, u, 0]; //Get Pixel Color | fast way
-                         Graymatrix[v, u] = a;
-                        //Graymatrix[u, v] = a;
-                    }
-                 }
 
-                E_iVision_ERRORS err2 = iImage.iImageResize(GrayImg, CurrentImg.Width, CurrentImg.Height);
-                unsafe
-                 {
-                     fixed (byte* bufPointer = &Graymatrix[0,0])
-                     {
-                         var err = iImage.iPointerToiImage(GrayImg, (IntPtr)bufPointer, CurrentImg.Width, CurrentImg.Height);
-                         if (err != E_iVision_ERRORS.E_OK)
-                         {
-                             MessageBox.Show(err.ToString(), "ERROR");
-                          //   return IntPtr.Zero;
-                         }
-                    }
-                 }
-                m_Drawimg = System.Drawing.Image.FromHbitmap(iImage.iGetBitmapAddress(GrayImg));
+                TransformFromImgCVToGrayImage(CurrentImg);
+
+
+                m_Drawimg = System.Drawing.Image.FromHbitmap(iImage.GetBitmapAddress(GrayImg));
 
                 if (m_bRTMatch)
                 {
@@ -226,7 +233,7 @@ namespace VideoPlayer
 
                     E_iVision_ERRORS err;
                     int objnum = 0;
-                    NCCFind objdata = new NCCFind();
+                    iNCCFound objdata = new iNCCFound();
                     iDPoint ResultPoint = new iDPoint();
                     iDPoint[] RegPoint = new iDPoint[4];
                     double[] Fang = new double[4];
@@ -246,16 +253,16 @@ namespace VideoPlayer
                     {
                         iMatch.iGetNCCMatchResults(Matchmodel, i, ref objdata);
 
-                        ResultPoint.x = objdata.CX;
-                        ResultPoint.y = objdata.CY;
+                        ResultPoint.x = objdata.cp.x;
+                        ResultPoint.y = objdata.cp.y;
 
-                        SetTextCoordinates(textBox1, objdata.CX.ToString("0.00"));
-                        SetTextCoordinates(textBox2, objdata.CY.ToString("0.00"));
-                        SetTextCoordinates(textBox3, objdata.Angle.ToString("0.00"));
+                        SetTextCoordinates(textBox1, objdata.cp.x.ToString("0.00"));
+                        SetTextCoordinates(textBox2, objdata.cp.y.ToString("0.00"));
+                        SetTextCoordinates(textBox3, objdata.angle.ToString("0.00"));
 
-                        m_Drawg.DrawString("score:" + objdata.Score.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 60));
-                        m_Drawg.DrawString("angle:" + objdata.Angle.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 40));
-                        m_Drawg.DrawString("scale:" + objdata.Scale.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 20));
+                        m_Drawg.DrawString("score:" + objdata.score.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 60));
+                        m_Drawg.DrawString("angle:" + objdata.angle.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 40));
+                        m_Drawg.DrawString("scale:" + objdata.scale.ToString("0.00"), drawfont, drawbrush, Convert.ToInt32(ResultPoint.x - 50), Convert.ToInt32(ResultPoint.y - 20));
                     }
 
 
@@ -266,7 +273,7 @@ namespace VideoPlayer
                 }
                 else
                 {
-                    RefreshPicturePtr(iImage.iGetBitmapAddress(GrayImg));
+                    RefreshPicturePtr(iImage.GetBitmapAddress(GrayImg));
                     await Task.Delay(1000 / Convert.ToInt16(30));
                     label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
                 }
@@ -324,18 +331,18 @@ namespace VideoPlayer
         }
         private void Image_FinalStepResize(byte[,] Final_Graymatrix, int FinalWid, int FinalHei)
         {
-            E_iVision_ERRORS err2 = iImage.iImageResize(GrayImg, FinalWid, FinalHei);
+            E_iVision_ERRORS err2 = iImage.Resize(GrayImg, FinalWid, FinalHei);
             unsafe
             {
                 fixed (byte* bufPointer = &Final_Graymatrix[0, 0])
                 {
-                    err2 = iImage.iPointerToiImage(GrayImg, (IntPtr)bufPointer, FinalWid, FinalHei);
+                    err2 = iImage.PointerToiImage(GrayImg, (IntPtr)bufPointer, FinalWid, FinalHei);
                     if (err2 != E_iVision_ERRORS.E_OK)
                     {
                         MessageBox.Show(err2.ToString(), "Error");
                         return;
                     }
-                    hbitmap = iImage.iGetBitmapAddress(GrayImg);
+                    hbitmap = iImage.GetBitmapAddress(GrayImg);
                     pictureBox1.Image = System.Drawing.Image.FromHbitmap(hbitmap);
                     pictureBox1.Refresh();
                 }
@@ -437,22 +444,135 @@ namespace VideoPlayer
 
         private void Picbox_MouseDown(object sender, MouseEventArgs e)
         {
-            if (iImage.iImageIsNULL(GrayImg) == E_iVision_ERRORS.E_FALSE ||
-                iImage.iImageIsNULL(ColorImg) == E_iVision_ERRORS.E_FALSE)
+            if (iImage.IsNULL(GrayImg) == E_iVision_ERRORS.E_FALSE ||
+                iImage.IsNULL(ColorImg) == E_iVision_ERRORS.E_FALSE)
             {
-                iROI.iROIMouseDown(TrainROITool, hDC, e.X, e.Y);
-                iROI.iROIMouseDown(MatchingROITool, hDC, e.X, e.Y);
+                iROI.MouseDown(TrainROITool, hDC, e.X, e.Y);
+                iROI.MouseDown(MatchingROITool, hDC, e.X, e.Y);
             }
         }
 
         private void Picbox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (iImage.iImageIsNULL(GrayImg) == E_iVision_ERRORS.E_FALSE ||
-                iImage.iImageIsNULL(ColorImg) == E_iVision_ERRORS.E_FALSE)
+            if (iImage.IsNULL(GrayImg) == E_iVision_ERRORS.E_FALSE ||
+                iImage.IsNULL(ColorImg) == E_iVision_ERRORS.E_FALSE)
             {
-                iROI.iROIMouseMove(TrainROITool, hDC, e.X, e.Y);
-                iROI.iROIMouseMove(MatchingROITool, hDC, e.X, e.Y);
+                if (iROI.Size(TrainROITool) != 0)
+                {
+                    iROI.MouseMove(TrainROITool, hDC, e.X, e.Y);
+                    iROI.MouseMove(MatchingROITool, hDC, e.X, e.Y);
+                    ChangePositionOfROI(e.X, e.Y);
+                }
             }
+        }
+
+        private void ChangePositionOfROI(int x, int y)
+        {
+            iBaseROI crect = (iBaseROI)GetROIinfoByType(iROIType.BaseROI);
+            crect.org_x = x;
+            crect.org_y = y;
+            var err = iROI.AssignBaseROI(TrainROITool, crect);
+            if (err != E_iVision_ERRORS.E_OK)
+            {
+                return ;
+            }
+            iROI.Plot(TrainROITool, hDC);
+        }
+
+        public object GetROIinfoByType(iROIType type)
+        {
+            IntPtr pnt;
+            switch (type)
+            {
+                case iROIType.UnknownROIType:
+                    break;
+                case iROIType.BaseROI:
+                    iBaseROI baseROI = new iBaseROI();
+                    pnt = Marshal.AllocHGlobal(Marshal.SizeOf(baseROI));
+                    Marshal.StructureToPtr(baseROI, pnt, false);
+                    iROI.GetInfo(TrainROITool, pnt);
+                    iBaseROI BASEROI = (iBaseROI)Marshal.PtrToStructure(pnt, typeof(iBaseROI));
+                    Marshal.FreeHGlobal(pnt);
+                    return BASEROI;
+              
+                default:
+                    break;
+            }
+            return null;
+
+
+        }
+        Rectangle rect = new Rectangle
+        {
+            X = 0,
+            Y = 0,
+            Width = 40,
+            Height = 20
+        };
+        private void DrawRectangle(int x, int y)
+        {
+           
+            Invalidate();
+
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            Point local = this.PointToClient(Cursor.Position);
+            e.Graphics.DrawRectangle(Pens.Red, local.X - 20, local.Y - 100, 100, 50);
+            //e.Graphics.DrawEllipse(Pens.Red, local.X , local.Y , 20, 20);
+          
+        }
+
+        private void pictureBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button==MouseButtons.Right)
+            {
+                Console.WriteLine(" create img ");
+                TransformFromImgCVToGrayImage(GetImageFromVideo());
+                Image<Gray, byte> imgCV = GetImageFromVideo();
+                string path = @"C:\\Users\\E100_AR VR\\Pictures\\test.bmp";
+                imgCV.Save(path);
+                var err = iImage.ReadImage(Snap_GrayImg, path);
+                if (err == E_iVision_ERRORS.E_OK)
+                {
+                    hbitmap = iImage.GetBitmapAddress(GrayImg);
+                    if (pictureBox2.Image != null) pictureBox2.Image.Dispose();
+                    pictureBox2.Image = System.Drawing.Image.FromHbitmap(hbitmap);
+                }
+                pictureBox2.Refresh();
+
+                Graphics g = GetGraphics();
+                hDC = g.GetHdc();
+
+                iROI.Attached(TrainROITool, GrayImg, hDC);
+                Console.WriteLine(" training ");
+                ncc.btn_NCCtraining_Click(sender, e);
+                Console.WriteLine(" matching");
+                ncc.btn_NCCmatching_Click(sender, e);
+            }
+        }
+        public void GetImage()
+        {
+            Image<Gray, byte> imgCV = GetImageFromVideo();
+            string path = @"C:\\Users\\E100_AR VR\\Pictures\\test.bmp";
+            imgCV.Save(path);
+
+
+        }
+        private void addROI(object sender, EventArgs e)
+        {
+            var err = iImage.ReadImage(Snap_GrayImg, path);
+            if (err == E_iVision_ERRORS.E_OK)
+            {
+                hbitmap = iImage.GetBitmapAddress(GrayImg);
+                if (pictureBox2.Image != null) pictureBox2.Image.Dispose();
+                pictureBox2.Image = System.Drawing.Image.FromHbitmap(hbitmap);
+            }
+            pictureBox2.Refresh();
+
+
+       
         }
     }
 }

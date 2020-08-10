@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace MiM_iVision
+namespace MVC.Vision.MiM.MiM_iVision
 {
     public class iMatch
     {
@@ -21,7 +21,7 @@ namespace MiM_iVision
         public extern static E_iVision_ERRORS CreateNCCModel(IntPtr Img, IntPtr model, bool mask_used = false);
 
         [DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "CreateNCCModelFromROI")]
-        public extern static E_iVision_ERRORS CreateNCCModelFromROI(IntPtr Img, IntPtr model, mRect ROI, bool mask_used = false);
+        public extern static E_iVision_ERRORS CreateNCCModelFromROI(IntPtr Img, IntPtr model, iRect ROI, bool mask_used = false);
 		
 		[DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "MatchNCCModelEx")]
         public extern static E_iVision_ERRORS MatchNCCModelEx(IntPtr Img, IntPtr model, double minScore, 
@@ -33,7 +33,7 @@ namespace MiM_iVision
         public extern static E_iVision_ERRORS MatchNCCModel(IntPtr Img, IntPtr model);
 
         [DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "MatchNCCModelFromROI")]
-        public extern static E_iVision_ERRORS MatchNCCModelFromROI(IntPtr Img, IntPtr model, mRect ROI);
+        public extern static E_iVision_ERRORS MatchNCCModelFromROI(IntPtr Img, IntPtr model, iRect ROI);
 
         [DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "LoadiMatchModel")]
         public extern static E_iVision_ERRORS LoadiMatchModel(IntPtr model, string path);
@@ -45,7 +45,7 @@ namespace MiM_iVision
         public extern static E_iVision_ERRORS iDrawiMatchResults(IntPtr model, IntPtr hDC, double Scale);
 
         [DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "iGetNCCMatchResults")]
-        public extern static E_iVision_ERRORS iGetNCCMatchResults(IntPtr model, int index, ref NCCFind data);
+        public extern static E_iVision_ERRORS iGetNCCMatchResults(IntPtr model, int index, ref iNCCFound data);
 
         [DllImport(dllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "iGetNCCMatchNum")]
         public extern static E_iVision_ERRORS iGetNCCMatchNum(IntPtr model, ref Int32 Nums);

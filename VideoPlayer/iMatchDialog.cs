@@ -540,14 +540,9 @@ namespace Warp_Csharp
                 label2.Text = "OK";
         }
 
-        public void button3_Click(object sender, EventArgs e)
+        public void AddBaseROI(object sender, EventArgs e)
         {
            // TheMainfrm.pictureBox2.Image = 
-
-            TheMainfrm.m_g =TheMainfrm.pictureBox1.CreateGraphics();
-            TheMainfrm.hDC = TheMainfrm.m_g.GetHdc();
-            iROI.Attached(TheMainfrm.TrainROITool, TheMainfrm.Snap_GrayImg, TheMainfrm.hDC);
-
             //iROI.iROIManagerSetDrawScale(TheMainfrm.TrainROITool, TheMainfrm.hDC, TheMainfrm.GetScale());
             if (iROI.Size(TheMainfrm.TrainROITool) == 0)
             {

@@ -109,7 +109,15 @@ namespace VideoPlayer
                 capture.SetCaptureProperty(CapProp.Fps, 30);
                 Fps = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps);
                 iImage.Resize(Snap_GrayImg, m.Width, m.Height);
-                ncc.button3_Click(sender, e);
+
+            
+              
+                //hDC = g.GetHdc();
+
+           
+                //iROI.Plot(TrainROITool, hDC);
+                //pictureBox1.Refresh();
+
             }
         }
 
@@ -154,6 +162,12 @@ namespace VideoPlayer
             ReadAllFrames();
             m_bPause = false;
             //capture.Start();
+          
+            m_g = pictureBox1.CreateGraphics();
+            hDC = m_g.GetHdc();
+            iROI.Attached(TrainROITool, Snap_GrayImg, hDC);
+            iROI.Attached(TrainROITool, GrayImg, hDC);
+            ncc.AddBaseROI(sender, e);
 
 
         }
@@ -459,6 +473,7 @@ namespace VideoPlayer
             {
                 if (iROI.Size(TrainROITool) != 0)
                 {
+              
                     iROI.MouseMove(TrainROITool, hDC, e.X, e.Y);
                     iROI.MouseMove(MatchingROITool, hDC, e.X, e.Y);
                     ChangePositionOfROI(e.X, e.Y);
@@ -476,7 +491,7 @@ namespace VideoPlayer
             {
                 return ;
             }
-            iROI.Plot(TrainROITool, hDC);
+          
         }
 
         public object GetROIinfoByType(iROIType type)
@@ -519,7 +534,7 @@ namespace VideoPlayer
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             Point local = this.PointToClient(Cursor.Position);
-            e.Graphics.DrawRectangle(Pens.Red, local.X - 20, local.Y - 100, 100, 50);
+            e.Graphics.DrawRectangle(Pens.Red, local.X - 80, local.Y - 150, 100, 100);
             //e.Graphics.DrawEllipse(Pens.Red, local.X , local.Y , 20, 20);
           
         }

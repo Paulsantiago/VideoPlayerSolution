@@ -549,7 +549,7 @@ namespace Warp_Csharp
                 iBaseROI l_base_roi;
                 l_base_roi.org_x = 50;
                 l_base_roi.org_y = 50;
-                l_base_roi.width = 50;
+                l_base_roi.width = 150;
                 l_base_roi.height = 50;
                 //TheMainfrm.pictureBox1.Refresh();
                 iROI.AddBaseROI(TheMainfrm.TrainROITool, l_base_roi);

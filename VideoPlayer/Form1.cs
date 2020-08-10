@@ -79,6 +79,10 @@ namespace VideoPlayer
         private Mat _grayFrame;
         internal Graphics m_g;
         Graphics g_rectangle;
+
+
+
+
         public Form1()
         {
 
@@ -168,7 +172,7 @@ namespace VideoPlayer
             iROI.Attached(TrainROITool, Snap_GrayImg, hDC);
             iROI.Attached(TrainROITool, GrayImg, hDC);
             ncc.AddBaseROI(sender, e);
-
+            timerSPEED.Start();
 
         }
 
@@ -216,7 +220,7 @@ namespace VideoPlayer
             }
         }
 
-
+        iDPoint ResultPoint;
 
         private async void ReadAllFrames()
         {
@@ -248,7 +252,7 @@ namespace VideoPlayer
                     E_iVision_ERRORS err;
                     int objnum = 0;
                     iNCCFound objdata = new iNCCFound();
-                    iDPoint ResultPoint = new iDPoint();
+                    ResultPoint = new iDPoint();
                     iDPoint[] RegPoint = new iDPoint[4];
                     double[] Fang = new double[4];
                     int i;
@@ -295,6 +299,12 @@ namespace VideoPlayer
                 await Task.Delay(1000 / Convert.ToInt16(30));
                 label1.Text = FrameNo.ToString() + "/" + TotalFrame.ToString();
 
+                pixelSpeedX = ResultPoint.x - lastPositionX;
+                pixelSpeedY = ResultPoint.y - lastPositionY;
+                TBXSPEEDX.Text = pixelSpeedX.ToString("F2");
+                TBSSPEEDY.Text = pixelSpeedY.ToString("F2");
+                lastPositionX = (int)ResultPoint.x;
+                lastPositionY = (int)ResultPoint.y;
                 //DrawScale = (double)Convert.ToDouble(txb.Text);
                 ///DrawScaledImage(bm, (float)DrawScale, out Bitmap l_Bitmap);
 
@@ -524,6 +534,11 @@ namespace VideoPlayer
             Width = 40,
             Height = 20
         };
+        private double pixelSpeedX;
+        private double pixelSpeedY;
+        private double lastPositionX = 0;
+        private double lastPositionY = 0;
+
         private void DrawRectangle(int x, int y)
         {
            
@@ -588,6 +603,14 @@ namespace VideoPlayer
 
 
        
+        }
+        double xlastP = 0;
+        double xcurrent = 0;
+        private void timerSPEED_Tick(object sender, EventArgs e)
+        {
+            xcurrent = ResultPoint.x - xlastP;   /// SPPED WOULD BE  ResultPoint.x/PPI(PIXEL PER INCHES or per cm) - xlastP
+            xlastP = ResultPoint.x;
+            txbspeed.Text = xcurrent.ToString("F2");
         }
     }
 }

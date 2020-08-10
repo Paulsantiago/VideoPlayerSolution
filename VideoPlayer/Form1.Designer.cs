@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.Load = new System.Windows.Forms.Button();
             this.Play = new System.Windows.Forms.Button();
             this.Stop = new System.Windows.Forms.Button();
@@ -43,6 +44,11 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.TBXSPEEDX = new System.Windows.Forms.TextBox();
+            this.TBSSPEEDY = new System.Windows.Forms.TextBox();
+            this.SPEED = new System.Windows.Forms.Label();
+            this.timerSPEED = new System.Windows.Forms.Timer(this.components);
+            this.txbspeed = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -98,9 +104,9 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(31, 126);
+            this.pictureBox1.Location = new System.Drawing.Point(12, 94);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(363, 263);
+            this.pictureBox1.Size = new System.Drawing.Size(499, 391);
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
@@ -182,17 +188,59 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Location = new System.Drawing.Point(414, 148);
+            this.pictureBox2.Location = new System.Drawing.Point(517, 326);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(288, 216);
+            this.pictureBox2.Size = new System.Drawing.Size(227, 159);
             this.pictureBox2.TabIndex = 15;
             this.pictureBox2.TabStop = false;
+            // 
+            // TBXSPEEDX
+            // 
+            this.TBXSPEEDX.Location = new System.Drawing.Point(590, 221);
+            this.TBXSPEEDX.Name = "TBXSPEEDX";
+            this.TBXSPEEDX.Size = new System.Drawing.Size(92, 22);
+            this.TBXSPEEDX.TabIndex = 16;
+            this.TBXSPEEDX.Text = "1";
+            // 
+            // TBSSPEEDY
+            // 
+            this.TBSSPEEDY.Location = new System.Drawing.Point(590, 249);
+            this.TBSSPEEDY.Name = "TBSSPEEDY";
+            this.TBSSPEEDY.Size = new System.Drawing.Size(92, 22);
+            this.TBSSPEEDY.TabIndex = 17;
+            this.TBSSPEEDY.Text = "1";
+            // 
+            // SPEED
+            // 
+            this.SPEED.AutoSize = true;
+            this.SPEED.Location = new System.Drawing.Point(569, 195);
+            this.SPEED.Name = "SPEED";
+            this.SPEED.Size = new System.Drawing.Size(39, 12);
+            this.SPEED.TabIndex = 18;
+            this.SPEED.Text = "SPEED";
+            // 
+            // timerSPEED
+            // 
+            this.timerSPEED.Interval = 1000;
+            this.timerSPEED.Tick += new System.EventHandler(this.timerSPEED_Tick);
+            // 
+            // txbspeed
+            // 
+            this.txbspeed.Location = new System.Drawing.Point(590, 285);
+            this.txbspeed.Name = "txbspeed";
+            this.txbspeed.Size = new System.Drawing.Size(92, 22);
+            this.txbspeed.TabIndex = 19;
+            this.txbspeed.Text = "1";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(878, 577);
+            this.Controls.Add(this.txbspeed);
+            this.Controls.Add(this.SPEED);
+            this.Controls.Add(this.TBSSPEEDY);
+            this.Controls.Add(this.TBXSPEEDX);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
@@ -234,6 +282,11 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
         public System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.TextBox TBXSPEEDX;
+        private System.Windows.Forms.TextBox TBSSPEEDY;
+        private System.Windows.Forms.Label SPEED;
+        private System.Windows.Forms.Timer timerSPEED;
+        private System.Windows.Forms.TextBox txbspeed;
     }
 }
 
